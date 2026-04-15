@@ -13,6 +13,16 @@ const retryImage = (e) => {
   }, 1500 * (tries + 1))
 }
 
+// Cloudflare Quick Tunnel URLs (EVVideoBoard.vue 와 동일)
+const STREAM_URL_MAP = {
+  'A-01': 'https://according-lines-ccd-detector.trycloudflare.com',
+  'A-02': 'https://prince-concerts-impaired-distribute.trycloudflare.com',
+  'B-01': 'https://fence-early-monitors-layers.trycloudflare.com',
+  'B-02': 'https://return-school-tract-chicken.trycloudflare.com',
+}
+const getStationName = (i) => `${selectedBuilding.value === 'A동' ? 'A' : 'B'}-0${i}`
+const getStreamUrl = (station) => (STREAM_URL_MAP[station] || STREAM_URL_MAP['A-01']) + '/stream'
+
 // ⏰ 실시간 날짜 및 시간 로직
 const currentDate = ref('');
 const currentTime = ref('');
@@ -167,9 +177,10 @@ const fetchWaitingList = async () => {
           </span>
           <div class="parking-img-box">
             <img
-              v-if="chargingStatusList[i-1]?.imageUrl"
-              :src="`http://localhost:8080/images/${chargingStatusList[i-1].imageUrl.replace('/images/', '')}`"
+              v-if="getStreamUrl(getStationName(i))"
+              :src="getStreamUrl(getStationName(i))"
               class="parking-img"
+              alt="LIVE STREAM"
               @error="retryImage"
             />
             <div v-else class="placeholder-img">Parking View</div>
@@ -177,9 +188,10 @@ const fetchWaitingList = async () => {
 
           <div class="plate-img-box">
             <img
-              v-if="chargingStatusList[i-1]?.plateImageUrl"
-              :src="`http://localhost:8080/images/${chargingStatusList[i-1].plateImageUrl.replace('/images/', '')}`"
+              v-if="getStreamUrl(getStationName(i))"
+              :src="getStreamUrl(getStationName(i))"
               class="plate-img"
+              alt="LIVE STREAM"
               @error="retryImage"
             />
             <div v-else class="placeholder-img small">Plate View</div>
