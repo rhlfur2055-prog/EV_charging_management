@@ -38,6 +38,9 @@ const useVideoDemo = (station) => {
   if (isReachableStream(STREAM_URL_MAP[station])) return null
   return DEMO_STREAM_VIDEO[station] || DEMO_STREAM_VIDEO['A-01']
 }
+// Static snapshot (JPG) — no plate-recognition overlay, no video loop.
+// Always returns the pre-captured still for the station.
+const getStaticShot = (station) => DEMO_STREAM_URL[station] || DEMO_STREAM_URL['A-01']
 
 // ⏰ 실시간 날짜 및 시간 로직
 const currentDate = ref('');
@@ -211,25 +214,57 @@ const fetchWaitingList = async () => {
             {{ selectedBuilding === 'A동' ? 'A' : 'B' }}-0{{i}}
           </span>
           <div class="parking-img-box">
-            <video
-              v-if="useVideoDemo(getStationName(i))"
-              :src="useVideoDemo(getStationName(i))"
-              class="parking-img"
-              autoplay muted loop playsinline
-            ></video>
             <img
-              v-else-if="getStreamUrl(getStationName(i))"
-              :src="getStreamUrl(getStationName(i))"
+              :src="getStaticShot(getStationName(i))"
               class="parking-img"
-              alt="LIVE STREAM"
+              :alt="getStationName(i) + ' snapshot'"
               @error="retryImage"
             />
-            <div v-else class="placeholder-img">Parking View</div>
           </div>
         </div>
       </div>
     </section>
 
+    <section class="status-section">
+      <div class="status-split-container">
+        <div class="table-area">
+          <h2 class="section-title">충전 구역 현황</h2>
+          <div class="content-card">
+            <table class="main-status-table">
+              <thead>
+                <tr>
+                  <th>충전소</th><th>차량번호</th><th>EV여부</th><th>입차시간</th><th>상태</th><th>경과시간</th><th>경고</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="item in chargingStatusList" :key="item.station">
+                  <td>{{ item.station }}</td>
+                  <td>{{ item.plate }}</td>
+                  <td><span :class="['ev-text', item.isEV === 'Yes' ? 'ev-yes' : 'ev-no']">{{ item.isEV }}</span></td>
+                  <td>{{ item.entryTime }}</td>
+                  <td :class="{'ev-no': item.status === '비정상'}">{{ item.status }}</td>
+                  <td>{{ item.chargeTime > 0 ? item.chargeTime + '분' : '-' }}</td>
+                  <td>
+                    <span v-if="getWarningLabel(item)" class="pill-warning">{{ getWarningLabel(item) }}</span>
+                    <span v-else class="normal-dash">-</span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="alert-area">
+          <h2 class="section-title">실시간 알림</h2>
+          <div class="content-card alert-scroll">
+            <div v-for="log in alertLogs" :key="log.id" :class="['alert-item', log.type]">
+              <span class="log-time">{{ log.time }}</span>
+              <span class="log-msg">{{ log.msg }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
   </main>
 
   <button @click="toggleWaitingList" class="waiting-btn-yellow">실시간 대기열 현황 확인</button>
@@ -309,7 +344,7 @@ body { background-color: #f0f9f4; color: #1a2e25; font-family: 'Pretendard', san
   padding: 10px 35px 20px 35px; display: flex; flex-direction: column; gap: 5px; box-sizing: border-box; 
 }
 
-.camera-section { flex: 5.5; display: flex; justify-content: center; width: 100%; min-height: 0; }
+.camera-section { flex: 6 1 0; display: flex; justify-content: center; width: 100%; min-height: 0; }
 .camera-contents { display: flex; gap: 70px; width: 100%; max-width: 1300px;}
 .camera-group { flex: 1; display: flex; flex-direction: column; gap: 10px; min-width: 0; min-height: 0; }
 .big-label { font-size: 1.5em !important; color: #0d2b1f; font-weight: 900; text-align: center; margin-bottom: 5px; }
@@ -319,7 +354,7 @@ body { background-color: #f0f9f4; color: #1a2e25; font-family: 'Pretendard', san
 
 .placeholder-img { color: rgba(255,255,255,0.8); display: flex; justify-content: center; align-items: center; height: 100%; font-weight: bold; font-size: 1.1em; }
 
-.status-section { flex: 5; display: flex; width: 100%; justify-content: center; min-height: 220px; padding-bottom: 35px; margin-top: 5px; }
+.status-section { flex: 4 1 0; display: flex; width: 100%; justify-content: center; min-height: 200px; padding-bottom: 20px; margin-top: 5px; }
 .status-split-container { display: flex; width: 100%; gap: 25px; max-width: 1300px; }
 .table-area { flex: 6.5; display: flex; flex-direction: column; }
 .alert-area { flex: 2.5; display: flex; flex-direction: column; }
