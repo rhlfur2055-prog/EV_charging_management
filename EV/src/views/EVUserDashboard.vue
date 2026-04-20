@@ -48,7 +48,11 @@
         <div class="glass-card">
           <h3 class="card-label white-important">현재 충전 상태</h3>
           <div class="charge-flex">
-            <div class="ring-gauge white-important">{{ Math.round(chargePercent) }}%</div>
+            <div class="ring-gauge white-important" :style="{
+              background: `conic-gradient(#22c55e ${chargePercent * 3.6}deg, rgba(255,255,255,0.12) 0deg)`
+            }">
+              <span class="ring-inner">{{ Math.round(chargePercent) }}%</span>
+            </div>
             <div class="charge-stats">
               <p class="kw white-important kw-size">{{ currentKw }} kW</p>
               <p class="min white-important min-size">{{ chargePercent >= 100 ? '충전 완료' : `예상 ${minutesLeft}분 남음` }}</p>
@@ -205,14 +209,22 @@ const filteredStations = computed(() => stations.value.filter(s => s.b === charg
 // drift slightly on each tick so the bars subtly animate.
 const monthlyData = ref([120, 185, 145, 90, 60, 110, 130, 80, 150, 170, 100, 140]);
 
+// Per-station countdown minutes keyed by stationNumber, ticking down every
+// second so the queue "예상 시간" visibly decreases like a real wait-list.
+const queueTimers = ref({});
+
 const allQueueData = computed(() => {
   if (!queueData.value || queueData.value.length === 0) return [];
-  return queueData.value.map((item, index) => ({
-    rank: index + 1,
-    chargerId: item.stationNumber || '번호 없음', 
-    status: item.status === 'waiting' ? '대기 중' : '충전 중',
-    time: '0분'
-  }));
+  return queueData.value.map((item, index) => {
+    const sid = item.stationNumber || '번호 없음';
+    const mins = queueTimers.value[sid];
+    return {
+      rank: index + 1,
+      chargerId: sid,
+      status: item.status === 'waiting' ? '대기 중' : '충전 중',
+      time: mins == null ? '-' : `${Math.max(0, Math.ceil(mins))}분`,
+    };
+  });
 });
 
 const toggleNoti = () => {
@@ -274,15 +286,33 @@ const fetchHistory = async () => {
   }
 };
 
+const seedQueueTimers = (rows) => {
+  // Initialize a plausible countdown for any new row we haven't seen yet.
+  // Rank 1 waits ~4min, rank 2 ~10min, rank 3 ~16min, etc.
+  const seen = queueTimers.value;
+  const next = { ...seen };
+  rows.forEach((r, i) => {
+    const sid = r.stationNumber;
+    if (!sid) return;
+    if (next[sid] == null) next[sid] = 3 + i * 5 + Math.random() * 3;
+  });
+  // Drop timers for rows no longer in queue.
+  const live = new Set(rows.map(r => r.stationNumber));
+  Object.keys(next).forEach(k => { if (!live.has(k)) delete next[k]; });
+  queueTimers.value = next;
+};
+
 const fetchQueue = async () => {
-  if (isDemoMode()) { queueData.value = mockQueueWaiting; return; }
+  if (isDemoMode()) { queueData.value = mockQueueWaiting; seedQueueTimers(queueData.value); return; }
   try {
     const res = await axios.get('http://localhost:8080/api/queue/waiting');
     queueData.value = Array.isArray(res.data) ? res.data : [];
     if (queueData.value.length === 0) throw new Error('empty');
+    seedQueueTimers(queueData.value);
   } catch (err) {
     console.warn('[demo] queue fallback');
     queueData.value = mockQueueWaiting;
+    seedQueueTimers(queueData.value);
   }
 };
 
@@ -416,6 +446,36 @@ const tickLive = () => {
     else                     { s.status = 'busy'; s.statusText = '사용 중' }
     stations.value.splice(idx, 1, s);
   }
+
+  // Queue countdown: tick each waiting station down ~1/60 min per second.
+  const t = { ...queueTimers.value };
+  Object.keys(t).forEach(k => { t[k] = Math.max(0, t[k] - 1 / 60); });
+  queueTimers.value = t;
+
+  // When the head-of-queue hits 0, remove it (simulating "your turn"),
+  // nudge a notification, and re-seed timers for the rest.
+  if (queueData.value.length > 0) {
+    const head = queueData.value[0];
+    const headTime = queueTimers.value[head.stationNumber];
+    if (headTime != null && headTime <= 0) {
+      notifications.value.unshift(`⚡ ${head.stationNumber} 충전 시작!`);
+      displayBadgeCount.value++;
+      queueData.value = queueData.value.slice(1);
+      seedQueueTimers(queueData.value);
+    }
+  }
+
+  // Occasional new queue entry (~1 per 20s) to keep the list moving.
+  if (Math.random() < 0.05) {
+    const candidates = ['A-01', 'A-02', 'B-01', 'B-02'].filter(
+      id => !queueData.value.some(q => q.stationNumber === id)
+    );
+    if (candidates.length) {
+      const pick = candidates[Math.floor(Math.random() * candidates.length)];
+      queueData.value = [...queueData.value, { stationNumber: pick, status: 'waiting' }];
+      seedQueueTimers(queueData.value);
+    }
+  }
 };
 
 onMounted(() => {
@@ -461,7 +521,8 @@ onUnmounted(() => {
 .card-label { font-size: 1.2rem; font-weight: 800; margin-bottom: 12px; display: block; text-transform: uppercase; margin-top: 5px; }
 .bar-chart-12 { display: flex; align-items: flex-end; justify-content: space-between; height: 120px; padding-top: 35px; }
 .bar-unit { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; }
-.bar-pillar { width: 40px; background: rgba(255, 255, 255, 0.7); border-radius: 8px; position: relative; }
+.bar-pillar { width: 40px; background: rgba(255, 255, 255, 0.7); border-radius: 8px; position: relative; transition: height 0.8s cubic-bezier(0.22, 1, 0.36, 1); }
+.bar-pillar.active { background: #22c55e; box-shadow: 0 0 12px rgba(34, 197, 94, 0.5); }
 .bar-pop { position: absolute; top: -18px; left: 50%; transform: translateX(-50%); font-size: 0.75rem; font-weight: 800; }
 .charger-status-container { display: flex; flex-direction: column; gap: 10px; }
 .charger-status-card { background: rgba(0,0,0,0.2); border-radius: 12px; padding: 16px 20px; display: flex; align-items: center; gap: 16px; border: 1px solid rgba(255,255,255,0.05); cursor: pointer; transition: all 0.2s; }
@@ -476,7 +537,10 @@ onUnmounted(() => {
 .scroll-area-3 { flex: 1; overflow-y: auto; }
 table { width: 100%; border-collapse: collapse; font-size: 1rem; }
 td { padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.05); text-align: center; }
-.ring-gauge { width: 80px; height: 80px; border-radius: 50%; border: 6px solid #22c55e; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 1.3rem; }
+.ring-gauge { width: 88px; height: 88px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 1.3rem; transition: background 0.6s linear; position: relative; }
+.ring-gauge::before { content: ''; position: absolute; inset: 6px; border-radius: 50%; background: rgba(13, 43, 31, 0.85); }
+.ring-inner { position: relative; z-index: 1; }
+.q-timer { transition: color 0.3s ease; font-variant-numeric: tabular-nums; font-weight: 700; }
 .charge-flex { display: flex; align-items: center; gap: 30px; }
 .p-name { font-size: 1.2rem; margin-bottom: 6px; display: inline-block; }
 .tag { background: #22c55e; color: #fff; padding: 3px 10px; border-radius: 4px; font-size: 0.8rem; margin-left: 5px; }

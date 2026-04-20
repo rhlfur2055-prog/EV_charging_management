@@ -49,7 +49,9 @@
         <div class="video-grid">
           <div v-for="cctv in cctvList" :key="cctv.station" class="video-item">
             <div class="video-header">
-              CCTV {{ cctv.station }} <span class="status-dot"></span>
+              <span class="live-badge"><span class="live-dot-sm"></span>LIVE</span>
+              <span class="video-ch">CCTV {{ cctv.station }}</span>
+              <span class="video-tc">{{ currentTimeOnly }}</span>
             </div>
             <video
               v-if="cctv && cctv.station && useVideoDemo(cctv.station)"
@@ -339,9 +341,46 @@ onUnmounted(() => { clearInterval(timer); })
 .machine-num-label { font-size: 11px; color: #6a8c7e; }
 .live-text { color: #76c7a0; font-weight: bold; font-size: 18px; }
 .main-content { flex: 1; display: flex; flex-direction: column; gap: 15px; min-width: 0; }
-.video-grid { flex: 0 0 68%; display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; gap: 12px; }
-.video-item { background: #000000; border-radius: 6px; position: relative; border: 1px solid #1e3b2f; overflow: hidden; width: 100%; height: 280px; }
-.video-header { position: absolute; top: 10px; left: 10px; font-size: 17px; background: rgba(0,0,0,0.6); padding: 4px 8px; border-radius: 4px; z-index: 2; color: #dcf1e2; }
+.video-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-auto-rows: 1fr;
+  gap: 12px;
+  width: 100%;
+  min-width: 0;
+}
+.video-grid > .video-item { aspect-ratio: 16 / 9; min-height: 180px; }
+@media (max-width: 1024px) {
+  .video-grid { grid-template-columns: 1fr; }
+}
+.video-item {
+  background: #000000;
+  border-radius: 8px;
+  position: relative;
+  border: 1px solid #1e3b2f;
+  overflow: hidden;
+  width: 100%;
+}
+.video-item .video-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.video-header {
+  position: absolute; top: 0; left: 0; right: 0;
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 10px;
+  font: 700 13px/1.2 ui-monospace, 'Menlo', monospace;
+  color: #e5e7eb;
+  background: linear-gradient(180deg, rgba(0,0,0,0.65), rgba(0,0,0,0));
+  z-index: 2;
+}
+.video-ch { font-weight: 700; }
+.video-tc { margin-left: auto; opacity: 0.92; letter-spacing: 0.5px; }
+.live-badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  background: rgba(233, 84, 84, 0.18);
+  color: #ff6b6b; border: 1px solid rgba(233, 84, 84, 0.4);
+  padding: 2px 6px; border-radius: 4px;
+  font-size: 11px; font-weight: 800; letter-spacing: 0.4px;
+}
+.live-dot-sm { width: 6px; height: 6px; background: #e95454; border-radius: 50%; animation: blink 1.2s infinite; display: inline-block; }
 .video-placeholder-text { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: #162a22; font-size: 14px; font-weight: 900; letter-spacing: 4px; }
 .ai-overlay { position: absolute; bottom: 12px; left: 12px; z-index: 2; display: flex; gap: 8px; align-items: center; }
 .plate-num { background: #ffffff; color: #0d2b1f; padding: 2px 10px; font-size: 13px; font-weight: 800; border-radius: 4px; }

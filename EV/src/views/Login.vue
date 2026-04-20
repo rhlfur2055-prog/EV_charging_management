@@ -85,8 +85,8 @@ const login = async () => {
       return
     }
 
-    // Demo-account bypass: matches DEMO_USER / DEMO_ADMIN locally so the
-    // portfolio demo works even when the backend is offline.
+    // Demo-account bypass: check BEFORE network call so portfolio demo
+    // works instantly even when the Render.com backend is cold-starting.
     const asDemo = () => {
       if (loginType.value === 'admin' &&
           loginPayload.loginId === DEMO_ADMIN.loginId &&
@@ -97,14 +97,14 @@ const login = async () => {
       return null
     }
 
+    const demoData = asDemo()
     let response
-    try {
-      response = await axios.post('/api/users/login', loginPayload)
-    } catch (netErr) {
-      const demoData = asDemo()
-      if (demoData) {
-        response = { status: 200, data: demoData }
-      } else {
+    if (demoData) {
+      response = { status: 200, data: demoData }
+    } else {
+      try {
+        response = await axios.post('/api/users/login', loginPayload, { timeout: 8000 })
+      } catch (netErr) {
         throw netErr
       }
     }

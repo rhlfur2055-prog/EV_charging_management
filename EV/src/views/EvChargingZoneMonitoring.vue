@@ -176,7 +176,7 @@ const fetchWaitingList = async () => {
 <template>
   <header class="top-header">
     <div class="left-section">
-      <h1 class="title">EV Charging Zone Monitoring</h1>
+      <h1 class="title" @click="$router.push('/')" style="cursor:pointer;">EV Charging Zone Monitoring</h1>
       <div class="header-info-inline">
         <span class="date-text">{{ currentDate }}</span>
         <span class="live-time">{{ currentTime }}</span>
