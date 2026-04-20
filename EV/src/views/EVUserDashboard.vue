@@ -523,7 +523,8 @@ onUnmounted(() => {
 .bar-unit { flex: 1; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; gap: 6px; min-width: 0; }
 .bar-pillar { width: 100%; max-width: 28px; background: rgba(255, 255, 255, 0.7); border-radius: 6px 6px 2px 2px; position: relative; transition: height 0.8s cubic-bezier(0.22, 1, 0.36, 1); min-height: 4px; }
 .bar-pillar.active { background: #22c55e; box-shadow: 0 0 12px rgba(34, 197, 94, 0.5); }
-.bar-pop { position: absolute; top: -18px; left: 50%; transform: translateX(-50%); font-size: 0.75rem; font-weight: 800; }
+.bar-pop { position: absolute; top: -18px; left: 50%; transform: translateX(-50%); font-size: 0.75rem; font-weight: 800; white-space: nowrap; }
+.bar-month { font-size: 0.7rem; white-space: nowrap; opacity: 0.85; font-weight: 600; }
 .charger-status-container { display: flex; flex-direction: column; gap: 8px; }
 .charger-status-card { background: rgba(0,0,0,0.2); border-radius: 12px; padding: 10px 16px; display: flex; align-items: center; gap: 14px; border: 1px solid rgba(255,255,255,0.05); cursor: pointer; transition: all 0.2s; }
 .charger-id { font-weight: 800; font-size: 1.2rem; }
