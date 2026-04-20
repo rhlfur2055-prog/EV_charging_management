@@ -291,7 +291,7 @@ export const DEMO_PLATE_URL = {
 // Demo account (offline-safe login)
 export const DEMO_USER = {
   loginId: 'user',
-  password: 'demo1234',
+  password: '1234',
   response: {
     userPk: 1,
     loginId: 'user',
