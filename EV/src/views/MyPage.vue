@@ -149,7 +149,7 @@ const handleLogout = () => {
 </script>
 
 <style scoped>
-.mypage-wrapper { position: relative; width: 100%; min-height: 100vh; color: white; font-family: 'Pretendard', sans-serif; }
+.mypage-wrapper { position: relative; width: 100%; height: 100vh; color: white; font-family: 'Pretendard', sans-serif; display: flex; flex-direction: column; overflow: hidden; }
 .bg-overlay { position: fixed; inset: 0; background: linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.75)), url('https://images.unsplash.com/photo-1593941707882-a5bba14938c7?q=80&w=2072'); background-size: cover; background-position: center; z-index: -1; }
 .white-important { color: #ffffff !important; }
 .green-text { color: #22c55e !important; font-weight: 700; }
@@ -164,37 +164,37 @@ const handleLogout = () => {
 .nav-pill:hover { background-color: rgba(255, 255, 255, 0.1); border-color: #ffffff; }
 .nav-pill.logout:hover { background-color: #ffffff; color: #0d2b1f !important; }
 
-.main-content { display: flex; padding: 25px 40px; gap: 25px; }
-.panel { display: flex; flex-direction: column; gap: 15px; }
+.main-content { display: flex; padding: 18px 40px; gap: 22px; flex: 1 1 0; min-height: 0; overflow: hidden; box-sizing: border-box; }
+.panel { display: flex; flex-direction: column; gap: 12px; min-height: 0; overflow: hidden; }
 .left-panel { flex: 0.4; }
 .right-panel { flex: 0.6; }
-.glass-card { background: rgba(255, 255, 255, 0.08); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 20px; padding: 22px 26px; }
-.card-label { font-size: 1.15rem; font-weight: 800; margin: 0 0 14px; display: block; text-transform: uppercase; }
+.glass-card { background: rgba(255, 255, 255, 0.08); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 20px; padding: 14px 20px; flex-shrink: 0; }
+.card-label { font-size: 1rem; font-weight: 800; margin: 0 0 10px; display: block; text-transform: uppercase; }
 
-.profile-card { display: flex; flex-direction: column; align-items: center; padding: 30px 26px; gap: 10px; }
-.avatar-circle { width: 86px; height: 86px; border-radius: 50%; background: linear-gradient(135deg, #22c55e, #0d2b1f); display: flex; align-items: center; justify-content: center; font-size: 2.2rem; font-weight: 900; color: #fff; }
+.profile-card { display: flex; flex-direction: column; align-items: center; padding: 18px 20px; gap: 6px; }
+.avatar-circle { width: 68px; height: 68px; border-radius: 50%; background: linear-gradient(135deg, #22c55e, #0d2b1f); display: flex; align-items: center; justify-content: center; font-size: 1.8rem; font-weight: 900; color: #fff; }
 .profile-name-row { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
 .p-name { font-size: 1.4rem; font-weight: 900; }
 .tag { background: #22c55e; color: #fff; padding: 3px 10px; border-radius: 4px; font-size: 0.75rem; }
 .p-id { opacity: 0.7; font-size: 0.9rem; margin: 0; }
 
-.info-row { display: flex; justify-content: space-between; padding: 9px 0; border-bottom: 1px solid rgba(255,255,255,0.08); font-size: 0.95rem; }
+.info-row { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.08); font-size: 0.88rem; }
 .info-row:last-child { border-bottom: none; }
 .k { opacity: 0.7; }
 .v { font-weight: 700; }
 
 .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-.stat-box { background: rgba(0,0,0,0.25); border-radius: 12px; padding: 18px; text-align: center; }
-.stat-val { font-size: 1.8rem; font-weight: 900; line-height: 1; }
-.stat-lbl { font-size: 0.85rem; opacity: 0.85; margin-top: 6px; }
+.stat-box { background: rgba(0,0,0,0.25); border-radius: 12px; padding: 12px; text-align: center; }
+.stat-val { font-size: 1.5rem; font-weight: 900; line-height: 1; }
+.stat-lbl { font-size: 0.8rem; opacity: 0.85; margin-top: 4px; }
 
 .activity-list { list-style: none; padding: 0; margin: 0; }
-.activity-row { display: flex; gap: 14px; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.06); font-size: 0.93rem; }
+.activity-row { display: flex; gap: 14px; padding: 6px 0; border-bottom: 1px solid rgba(255,255,255,0.06); font-size: 0.88rem; }
 .activity-row:last-child { border-bottom: none; }
 .a-time { opacity: 0.6; min-width: 90px; }
 
 .settings-row { display: flex; gap: 12px; }
-.action-btn { flex: 1; border: none; padding: 14px; border-radius: 12px; font-weight: 800; cursor: pointer; background: #22c55e; color: #fff; font-size: 1rem; transition: transform 0.15s; }
+.action-btn { flex: 1; border: none; padding: 10px; border-radius: 12px; font-weight: 800; cursor: pointer; background: #22c55e; color: #fff; font-size: 0.95rem; transition: transform 0.15s; }
 .action-btn:hover { transform: translateY(-1px); }
 .action-btn.cancel { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.3); }
 </style>
