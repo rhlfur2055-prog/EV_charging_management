@@ -519,9 +519,9 @@ onUnmounted(() => {
 .left-panel { flex: 0.5; } .right-panel { flex: 0.5; } .center-spacer { flex: 0.8; } 
 .glass-card { background: rgba(255, 255, 255, 0.08); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 20px; padding: 20px 25px 25px 25px; }
 .card-label { font-size: 1.2rem; font-weight: 800; margin-bottom: 12px; display: block; text-transform: uppercase; margin-top: 5px; }
-.bar-chart-12 { display: flex; align-items: flex-end; justify-content: space-between; height: 120px; padding-top: 35px; }
-.bar-unit { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; }
-.bar-pillar { width: 40px; background: rgba(255, 255, 255, 0.7); border-radius: 8px; position: relative; transition: height 0.8s cubic-bezier(0.22, 1, 0.36, 1); }
+.bar-chart-12 { display: flex; align-items: flex-end; justify-content: space-between; height: 160px; padding-top: 30px; gap: 4px; }
+.bar-unit { flex: 1; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; gap: 6px; min-width: 0; }
+.bar-pillar { width: 100%; max-width: 28px; background: rgba(255, 255, 255, 0.7); border-radius: 6px 6px 2px 2px; position: relative; transition: height 0.8s cubic-bezier(0.22, 1, 0.36, 1); min-height: 4px; }
 .bar-pillar.active { background: #22c55e; box-shadow: 0 0 12px rgba(34, 197, 94, 0.5); }
 .bar-pop { position: absolute; top: -18px; left: 50%; transform: translateX(-50%); font-size: 0.75rem; font-weight: 800; }
 .charger-status-container { display: flex; flex-direction: column; gap: 10px; }
