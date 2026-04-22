@@ -1,0 +1,11 @@
+# Flyway migrations directory.
+#
+# When you flip SPRING_FLYWAY_ENABLED=true and add `org.flywaydb:flyway-core`
+# to build.gradle, place versioned migrations here:
+#
+#   V1__init.sql
+#   V2__add_indexes.sql
+#   ...
+#
+# The first one should `CREATE TABLE` for every JPA entity so Hibernate's
+# `validate` mode passes on the next boot.
